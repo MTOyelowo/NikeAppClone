@@ -2,7 +2,7 @@ import { FlatList, Image } from "react-native";
 import { StyleSheet, Text, View } from "react-native";
 import products from "../data/products";
 
-const ProductScreen = () => {
+const ProductsScreen = () => {
   return (
     <FlatList
       data={products}
@@ -21,7 +21,7 @@ const ProductScreen = () => {
   );
 };
 
-export default ProductScreen;
+export default ProductsScreen;
 
 const styles = StyleSheet.create({
   container: {
