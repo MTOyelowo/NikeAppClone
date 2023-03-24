@@ -7,20 +7,52 @@ import {
   useWindowDimensions,
   Pressable,
   Text,
+  Modal,
 } from "react-native";
 import products from "../data/products";
 import { useSelector, useDispatch } from "react-redux";
 import { cartSlice } from "../store/cartSlice";
+import { useEffect, useRef, useState } from "react";
+import { useGetProductQuery } from "../store/apiSlice";
+import { ActivityIndicator } from "react-native";
 
-const ProductDetailsScreen = () => {
-  const product = useSelector((state) => state.products.selectedProduct);
+const ProductDetailsScreen = ({ route }) => {
+  const [showAlert, setShowAlert] = useState(false);
+  const timerId = useRef(null);
   const dispatch = useDispatch();
-
   const { width } = useWindowDimensions();
+
+  const id = route.params.id;
+
+  const { data, isLoading, error } = useGetProductQuery(id);
 
   const addToCart = () => {
     dispatch(cartSlice.actions.addCartItem({ product }));
+
+    setShowAlert(true);
   };
+
+  useEffect(() => {
+    if (showAlert) {
+      timerId.current = setTimeout(() => {
+        setShowAlert(false);
+      }, 1000);
+    }
+
+    return () => {
+      clearTimeout(timerId.current);
+    };
+  }, [showAlert]);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (error) {
+    return <Text>Error fetching product info: {error.error}</Text>;
+  }
+
+  const product = data.data;
 
   return (
     <View>
@@ -52,6 +84,11 @@ const ProductDetailsScreen = () => {
       <Pressable onPress={addToCart} style={styles.button}>
         <Text style={styles.buttonText}>Add to cart</Text>
       </Pressable>
+      <Modal animationType="fade" transparent={true} visible={showAlert}>
+        <View style={styles.modalView}>
+          <Text style={styles.modalText}>1 {product.name} added to cart</Text>
+        </View>
+      </Modal>
 
       {/* Navigation icon */}
     </View>
@@ -92,5 +129,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 20,
     textAlign: "center",
+  },
+  modalView: {
+    backgroundColor: "#EDEDED",
+    width: "75%",
+    height: 50,
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 5,
+    borderRadius: 9999,
+  },
+  modalText: {
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
