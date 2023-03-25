@@ -26,6 +26,8 @@ const ProductDetailsScreen = ({ route }) => {
 
   const { data, isLoading, error } = useGetProductQuery(id);
 
+  const product = data?.data;
+
   const addToCart = () => {
     dispatch(cartSlice.actions.addCartItem({ product }));
 
@@ -51,8 +53,6 @@ const ProductDetailsScreen = ({ route }) => {
   if (error) {
     return <Text>Error fetching product info: {error.error}</Text>;
   }
-
-  const product = data.data;
 
   return (
     <View>
